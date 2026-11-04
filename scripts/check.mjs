@@ -23,6 +23,7 @@ for (const exported of ['./index.js', './client.js', pkg.exports['./icon']]) {
   assert.ok(fs.existsSync(path.join(root, exported)), `Missing export: ${exported}`)
 }
 assert.ok(fs.existsSync(path.resolve(root, 'docs', plugin.icon)), 'Missing marketplace icon')
+assert.ok(fs.statSync(path.join(root, pkg.exports['./icon'])).size <= 256 * 1024, 'Plugin icon must not exceed DSH’s 256 KiB limit')
 assert.match(read('cordis.patch.yml'), new RegExp(`id: ${pkg.name}\\n\\s+name: '${pkg.name}'`))
 
 let client

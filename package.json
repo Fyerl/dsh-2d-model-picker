@@ -1,6 +1,6 @@
 {
   "name": "dsh-2d-model-picker",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A 2D model picker for DeepSeek Harness — select a model and reasoning effort in one drag.",
   "keywords": [
     "deepseek-harness",

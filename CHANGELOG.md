@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.1] - 2026-11-04
+- Fix DSH plugin metadata loading by reducing the bundled PNG icon below the host's 256 KiB limit.
+- Add an icon-size check to prevent oversized assets from shipping again.
+
 ## [1.0.0] - 2026-11-04
 - Fix English README selection in npm by naming the Chinese translation `README-zh-CN.md`.
 - Embed the updated original-resolution, 60 fps MP4 in both READMEs and remove redundant video links.

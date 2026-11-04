@@ -1,7 +1,7 @@
 {
-  "name": "dsh-model-matrix",
-  "version": "0.1.0",
-  "description": "Turn the DeepSeek Harness model picker into a 2D matrix — pick model and reasoning effort in one drag.",
+  "name": "dsh-2d-model-picker",
+  "version": "0.1.1",
+  "description": "A 2D model picker for DeepSeek Harness — select a model and reasoning effort in one drag.",
   "keywords": [
     "deepseek-harness",
     "dsh",
@@ -9,30 +9,41 @@
     "model",
     "reasoning",
     "effort",
-    "matrix",
+    "2d",
+    "picker",
     "selector"
   ],
   "author": "Fyerl <ryan.fanyue@gmail.com>",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Fyerl/dsh-model-matrix.git"
+    "url": "git+https://github.com/Fyerl/dsh-2d-model-picker.git"
   },
-  "homepage": "https://github.com/Fyerl/dsh-model-matrix#readme",
+  "homepage": "https://github.com/Fyerl/dsh-2d-model-picker#readme",
   "type": "module",
   "exports": {
     ".": "./index.js",
     "./client": "./client.js",
     "./locale/*.json": "./locale/*.json",
-    "./icon": "./icon.svg"
+    "./icon": "./icon.png"
   },
-  "files": ["index.js", "client.js", "cordis.patch.yml", "locale/*.json", "icon.svg"],
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.png"
+  ],
   "dsh": {
-    "bundle": { "patch": "./cordis.patch.yml" },
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
     "client": {
       "platform": "web",
       "immediately": true,
-      "inject": ["@deepseek-ai/dsh-client-ui-conversation"]
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-conversation"
+      ]
     }
   }
 }

@@ -1,33 +1,61 @@
 {
   "format": 1,
-  "title": { "en": "Fyerl's DSH Plugins", "zh": "Fyerl 的 DSH 插件" },
-  "description": { "en": "DeepSeek Harness plugins maintained by Fyerl.", "zh": "Fyerl 维护的 DeepSeek Harness 插件。" },
+  "title": {
+    "en": "Fyerl's DSH Plugins",
+    "zh": "Fyerl 的 DSH 插件"
+  },
+  "description": {
+    "en": "DeepSeek Harness plugins maintained by Fyerl.",
+    "zh": "Fyerl 维护的 DeepSeek Harness 插件。"
+  },
   "metadata": {
     "categories": {
-      "client-ui": { "title": { "en": "Client UI", "zh": "界面" } }
+      "client-ui": {
+        "title": {
+          "en": "Client UI",
+          "zh": "界面"
+        }
+      }
     }
   },
   "plugins": [
     {
-      "name": "dsh-model-matrix",
-      "title": { "en": "Model Matrix", "zh": "模型矩阵" },
+      "name": "dsh-2d-model-picker",
+      "title": {
+        "en": "2D Model Picker",
+        "zh": "二维模型选择器"
+      },
       "description": {
         "en": "Pick a model and its reasoning effort in one drag — a 2D grid where rows are models and columns are reasoning-effort tiers.",
         "zh": "一次拖动同时选定模型与推理强度——行是模型、列是推理强度档位的二维矩阵选择器。"
       },
-      "icon": "../icon.svg",
+      "icon": "../icon.png",
       "author": "Fyerl",
-      "homepage": "https://github.com/Fyerl/dsh-model-matrix#readme",
-      "repository": { "url": "https://github.com/Fyerl/dsh-model-matrix" },
+      "homepage": "https://github.com/Fyerl/dsh-2d-model-picker#readme",
+      "repository": {
+        "url": "https://github.com/Fyerl/dsh-2d-model-picker"
+      },
       "metadata": {
         "category": "client-ui",
-        "keywords": ["model", "reasoning", "effort", "matrix", "2d", "selector", "模型", "推理强度"]
+        "keywords": [
+          "model",
+          "reasoning",
+          "effort",
+          "2d",
+          "picker",
+          "selector",
+          "模型",
+          "二维选择器",
+          "推理强度"
+        ]
       },
       "versions": [
         {
-          "version": "0.1.0",
-          "publishTimestamp": 1793756144,
-          "source": { "type": "npm" }
+          "version": "0.1.1",
+          "publishTimestamp": 1793801915,
+          "source": {
+            "type": "npm"
+          }
         }
       ]
     }

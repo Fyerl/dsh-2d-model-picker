@@ -1,6 +1,6 @@
 # Contributing
 
-感谢你对 `dsh-model-matrix` 的关注。
+感谢你对 `dsh-2d-model-picker` 的关注。
 
 ## 提 Issue
 
@@ -12,8 +12,8 @@
 本插件无构建步骤，`client.js` 为经典脚本，直接改即可。
 
 ```bash
-git clone https://github.com/Fyerl/dsh-model-matrix.git
-cd dsh-model-matrix
+git clone https://github.com/Fyerl/dsh-2d-model-picker.git
+cd dsh-2d-model-picker
 node --check client.js          # 语法校验
 node -e "import('./index.js')"  # 入口校验
 dsh plugin add .                # 本地安装到某个 profile 验证

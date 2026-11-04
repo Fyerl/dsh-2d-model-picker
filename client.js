@@ -1,7 +1,7 @@
 /**
- * dsh-model-matrix —— 浏览器半边（browser half）
+ * dsh-2d-model-picker —— 浏览器半边（browser half）
  * ============================================================================
- * 一个「二维」的模型 × 智能度选择器：横轴（列）是推理强度档位，纵轴（行）是模型。
+ * 一个「二维」的模型 × 推理强度选择器：横轴（列）是推理强度档位，纵轴（行）是模型。
  * 一个可拖动的滑点吸附在二维矩阵的交叉点上，松手即确认「模型 + 推理等级」组合。
  *
  * 这是手写的经典脚本，无构建步骤：宿主按 exports["./client"] 读文件字节组合进
@@ -16,13 +16,13 @@
  * 写 = remote.session.selectModel。没有任何假数据。
  */
 window.__ModuleLoader__.load({
-  id: 'dsh-model-matrix',
+  id: 'dsh-2d-model-picker',
   factory(require) {
     const React = require('react')
     const ReactDOM = require('react-dom')
     const h = React.createElement
 
-    const PLUGIN_ID = 'dsh-model-matrix'
+    const PLUGIN_ID = 'dsh-2d-model-picker'
     /** 接管原生模型选择器所在的 single 槽；priority -1 遮蔽原生 ModelSelect（越低越优先）。 */
     const SLOT = 'conversation.input.model'
     const SLOT_PRIORITY = -1
@@ -180,7 +180,7 @@ window.__ModuleLoader__.load({
 .dsh2d-max-halo{animation:dsh2d-max-pulse 2.2s ease-out infinite}
 .dsh2d-max-halo.dsh2d-delay{animation-delay:1.1s}
 @keyframes dsh2d-max-pulse{0%{r:9px;opacity:.45}70%{r:24px;opacity:0}100%{r:24px;opacity:0}}
-/* max 强化版：只改智能度文字色（带过渡）；背景与边框保持原生 */
+/* max 强化版：只改推理强度文字色（带过渡）；背景与边框保持原生 */
 .dsh2d-trigger .dsh2d-effort{transition:color .35s ease}
 .dsh2d-trigger.dsh2d-max .dsh2d-effort{color:#a855f7}
 /* max 氛围：面板内淡淡的漂浮粒子（从左向右，均匀分布） */
@@ -671,7 +671,7 @@ window.__ModuleLoader__.load({
           type: 'button',
           disabled: disabled,
           onClick: () => { if (!disabled) { setOpen((o) => !o); setPreview(null); setError('') } },
-          'aria-label': '选择模型与智能度',
+          'aria-label': '选择模型与推理强度',
           'aria-expanded': open,
         },
         h('span', { className: 'dsh2d-model' }, modelLabel),
@@ -703,7 +703,7 @@ window.__ModuleLoader__.load({
             viewBox: '0 0 ' + svgW + ' ' + svgH,
             tabIndex: 0,
             role: 'group',
-            'aria-label': '二维模型与智能度矩阵',
+            'aria-label': '二维模型选择器',
             onPointerDown: startDrag,
             onPointerMove: (e) => { if (!dragging) setHover(nearPuck(e.clientX, e.clientY)) },
             onPointerLeave: () => { if (!dragging) setHover(false) },
@@ -747,7 +747,7 @@ window.__ModuleLoader__.load({
               className: 'dsh2d-pop',
               style: pos ? { left: pos.left, top: pos.top } : { visibility: 'hidden', left: 0, top: 0 },
               role: 'dialog',
-              'aria-label': '模型 × 智能度选择器',
+              'aria-label': '模型 × 推理强度选择器',
             },
             particleState !== 'off'
               ? h('div', { className: 'dsh2d-particles' + (particleState === 'out' ? ' dsh2d-fading' : ''), 'aria-hidden': true }, makeParticles())
@@ -771,7 +771,7 @@ window.__ModuleLoader__.load({
       try {
         ctx.slots.inject(SLOT, () => ctx.slots.register({ name: SLOT, priority: SLOT_PRIORITY }, Bound))
       } catch (cause) {
-        if (typeof console !== 'undefined') console.warn('[dsh-model-matrix] 挂载失败：', cause)
+        if (typeof console !== 'undefined') console.warn('[dsh-2d-model-picker] 挂载失败：', cause)
       }
     }
 

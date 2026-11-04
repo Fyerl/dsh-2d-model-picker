@@ -1,6 +1,6 @@
 {
   "meta": {
-    "title": "Model Matrix · 2D Model × Intelligence Selector",
-    "description": "Replaces the model selector with a two-dimensional grid: rows are models, columns are reasoning-effort levels, and a draggable point snaps to a model + intelligence combination."
+    "title": "2D Model Picker",
+    "description": "Select a model and reasoning effort in one drag. Rows are models; columns are reasoning-effort tiers."
   }
 }

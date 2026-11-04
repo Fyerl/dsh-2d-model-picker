@@ -2,9 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.1.2] - 2026-11-04
+## [1.0.0] - 2026-11-04
 - Fix English README selection in npm by naming the Chinese translation `README-zh-CN.md`.
-- Embed the updated original-resolution MP4 in both READMEs and remove redundant video links.
+- Embed the updated original-resolution, 60 fps MP4 in both READMEs and remove redundant video links.
 - Document in-app installation, the required CLI profile, and enabling custom plugin indexes.
 - Use absolute README links for npm and GitHub, and make contributor-facing documents English-first.
 

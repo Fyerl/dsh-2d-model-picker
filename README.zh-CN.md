@@ -15,7 +15,7 @@
 
 ## 演示
 
-[![二维模型选择器演示：拖动滑点选择模型与推理强度](./docs/assets/demo.gif)](./docs/assets/demo.mp4)
+https://github.com/user-attachments/assets/ec5de655-3aba-44e6-a6ec-b0c3d208e132
 
 [观看原始视频（MP4）](./docs/assets/demo.mp4)
 

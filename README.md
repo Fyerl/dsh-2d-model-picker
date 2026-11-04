@@ -15,7 +15,7 @@
 
 ## Demo
 
-[![2D Model Picker demo: drag to select a model and reasoning effort](./docs/assets/demo.gif)](./docs/assets/demo.mp4)
+https://github.com/user-attachments/assets/ec5de655-3aba-44e6-a6ec-b0c3d208e132
 
 [Watch the original video (MP4)](./docs/assets/demo.mp4)
 

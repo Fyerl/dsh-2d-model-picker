@@ -767,7 +767,7 @@ window.__ModuleLoader__.load({
     /* ---------------- 挂载 ---------------- */
     function apply(ctx) {
       const Bound = (props) => h(GridSelector, Object.assign({}, props, { __ctx: ctx }))
-      Bound.displayName = 'ModelMatrixSelector'
+      Bound.displayName = 'ModelPicker2D'
       try {
         ctx.slots.inject(SLOT, () => ctx.slots.register({ name: SLOT, priority: SLOT_PRIORITY }, Bound))
       } catch (cause) {

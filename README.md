@@ -1,12 +1,12 @@
 <div align="center">
 
-<img src="./icon.png" width="160" alt="2D Model Picker logo" />
+<img src="https://raw.githubusercontent.com/Fyerl/dsh-2d-model-picker/main/icon.png" width="160" alt="2D Model Picker logo" />
 
 # 2D Model Picker
 
 **Pick a model and its reasoning effort in one drag.**
 
-**English** · [简体中文](./README.zh-CN.md)
+**English** · [简体中文](https://github.com/Fyerl/dsh-2d-model-picker/blob/main/README-zh-CN.md)
 
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![GitHub stars](https://img.shields.io/github/stars/Fyerl/dsh-2d-model-picker?style=social)
@@ -19,17 +19,19 @@ https://github.com/user-attachments/assets/ec5de655-3aba-44e6-a6ec-b0c3d208e132
 
 ## Quick start
 
-Install with the DSH CLI:
-
-```bash
-dsh plugin add dsh-2d-model-picker
-```
-
-Or install through the plugin marketplace. In **Settings → Plugins → Discover → Index sources**, add:
+In DSH, open **Plugins → Add plugin** and enter:
 
 ```text
-https://raw.githubusercontent.com/Fyerl/dsh-2d-model-picker/main/docs/index.json
+dsh-2d-model-picker
 ```
+
+Or use the CLI for the **Web profile**:
+
+```bash
+dsh plugin --profile web add dsh-2d-model-picker
+```
+
+For Discover, enable **Custom plugin indexes** under **Experimental plugins**, then add [this index](https://raw.githubusercontent.com/Fyerl/dsh-2d-model-picker/main/docs/index.json) in **Plugins → Discover**.
 
 ## What is 2D Model Picker?
 
@@ -37,4 +39,4 @@ https://raw.githubusercontent.com/Fyerl/dsh-2d-model-picker/main/docs/index.json
 
 ---
 
-[Contributing](./CONTRIBUTING.md) · [MIT License](./LICENSE)
+[Contributing](https://github.com/Fyerl/dsh-2d-model-picker/blob/main/CONTRIBUTING.md) · [MIT License](https://github.com/Fyerl/dsh-2d-model-picker/blob/main/LICENSE)

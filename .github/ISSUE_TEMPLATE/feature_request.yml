@@ -1,14 +1,14 @@
 name: Feature request
-description: 提一个功能建议
+description: Suggest an improvement
 labels: [enhancement]
 body:
   - type: textarea
     id: scenario
     attributes:
-      label: 使用场景
+      label: Use case
     validations:
       required: true
   - type: textarea
     id: value
     attributes:
-      label: 它带来的价值
+      label: How would this help?

@@ -1,26 +1,22 @@
 # Contributing
 
-感谢你对 `dsh-2d-model-picker` 的关注。
+Issues and pull requests are welcome.
 
-## 提 Issue
+For a bug report, include your DSH version, operating system, steps to reproduce, and expected behavior. For a feature request, explain the use case and its value.
 
-- **Bug**：请附上 DSH 版本、操作系统、复现步骤和期望行为。
-- **Feature**：说清使用场景和它带来的价值，而不是只描述实现。
+## Local development
 
-## 本地开发
-
-本插件无构建步骤，`client.js` 为经典脚本，直接改即可。
+No build step is required. `client.js` is a classic browser script.
 
 ```bash
 git clone https://github.com/Fyerl/dsh-2d-model-picker.git
 cd dsh-2d-model-picker
-node --check client.js          # 语法校验
-node -e "import('./index.js')"  # 入口校验
-dsh plugin add .                # 本地安装到某个 profile 验证
+npm run check
+dsh plugin --profile web add .
 ```
 
-## 提 PR
+Use your intended profile in place of `web`. For DSH Desktop, use its built-in plugin manager or the CLI installed by Desktop.
 
-- 一个 PR 只做一件事。
-- 同步更新 `CHANGELOG.md`。
-- 确认 `node --check client.js` 与 JSON 校验通过（CI 也会跑）。
+## Pull requests
+
+Keep each PR focused, update `CHANGELOG.md`, and run `npm run check` (also run by CI). For UI changes, verify the result in DSH.

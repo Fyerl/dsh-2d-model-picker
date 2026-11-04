@@ -27,7 +27,7 @@
       },
       "description": {
         "en": "Pick a model and its reasoning effort in one drag — a 2D grid where rows are models and columns are reasoning-effort tiers.",
-        "zh": "一次拖动同时选定模型与推理强度——行是模型、列是推理强度档位的二维矩阵选择器。"
+        "zh": "一次拖动同时选定模型与推理强度：行是模型，列是推理强度档位的二维选择器。"
       },
       "icon": "../icon.png",
       "author": "Fyerl",
@@ -50,6 +50,13 @@
         ]
       },
       "versions": [
+        {
+          "version": "0.1.2",
+          "publishTimestamp": 1793802504,
+          "source": {
+            "type": "npm"
+          }
+        },
         {
           "version": "0.1.1",
           "publishTimestamp": 1793801915,

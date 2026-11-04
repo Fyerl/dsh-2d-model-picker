@@ -1,15 +1,15 @@
-## 改动说明
+## Change
 
-<!-- 一句话说明这个 PR 做了什么 -->
+<!-- Briefly describe the problem and resulting behavior. -->
 
-## 类型
+## Type
 
-- [ ] 修复 bug
-- [ ] 新功能
-- [ ] 文档 / 结构
+- [ ] Bug fix
+- [ ] Feature
+- [ ] Documentation
 
-## 自检
+## Validation
 
-- [ ] `node --check client.js` 通过
-- [ ] JSON 校验通过
-- [ ] 已更新 `CHANGELOG.md`
+- [ ] JavaScript syntax and JSON checks pass
+- [ ] UI changes have been verified in DSH, if applicable
+- [ ] `CHANGELOG.md` is updated

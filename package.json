@@ -1,6 +1,6 @@
 {
   "name": "dsh-2d-model-picker",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A 2D model picker for DeepSeek Harness — select a model and reasoning effort in one drag.",
   "keywords": [
     "deepseek-harness",
@@ -32,7 +32,8 @@
     "client.js",
     "cordis.patch.yml",
     "locale/*.json",
-    "icon.png"
+    "icon.png",
+    "README-zh-CN.md"
   ],
   "dsh": {
     "bundle": {
@@ -45,5 +46,8 @@
         "@deepseek-ai/dsh-client-ui-conversation"
       ]
     }
+  },
+  "scripts": {
+    "check": "node scripts/check.mjs"
   }
 }

@@ -13,9 +13,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Validate JSON
-        run: node -e "for (const f of ['package.json','docs/index.json','locale/zh.json','locale/en.json']) JSON.parse(require('fs').readFileSync(f,'utf8')); console.log('json ok')"
-      - name: Syntax check client.js
-        run: node --check client.js
-      - name: Check entry module
-        run: node -e "import('./index.js').then(()=>console.log('index.js ok'))"
+      - name: Check package, documentation and plugin metadata
+        run: npm run check

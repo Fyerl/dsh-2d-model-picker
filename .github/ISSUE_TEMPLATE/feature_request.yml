@@ -1,0 +1,14 @@
+name: Feature request
+description: 提一个功能建议
+labels: [enhancement]
+body:
+  - type: textarea
+    id: scenario
+    attributes:
+      label: 使用场景
+    validations:
+      required: true
+  - type: textarea
+    id: value
+    attributes:
+      label: 它带来的价值

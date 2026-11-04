@@ -1,7 +1,7 @@
 {
   "name": "dsh-model-matrix",
   "version": "0.1.0",
-  "description": "A 2D model × reasoning-effort picker that replaces the DeepSeek Harness model selector.",
+  "description": "Turn the DeepSeek Harness model picker into a 2D matrix — pick model and reasoning effort in one drag.",
   "keywords": [
     "deepseek-harness",
     "dsh",

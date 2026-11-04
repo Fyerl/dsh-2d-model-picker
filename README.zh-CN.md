@@ -17,8 +17,6 @@
 
 https://github.com/user-attachments/assets/ec5de655-3aba-44e6-a6ec-b0c3d208e132
 
-[观看原始视频（MP4）](./docs/assets/demo.mp4)
-
 ## 快速接入
 
 通过 DSH CLI 安装：

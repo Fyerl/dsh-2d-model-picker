@@ -17,8 +17,6 @@
 
 https://github.com/user-attachments/assets/ec5de655-3aba-44e6-a6ec-b0c3d208e132
 
-[Watch the original video (MP4)](./docs/assets/demo.mp4)
-
 ## Quick start
 
 Install with the DSH CLI:

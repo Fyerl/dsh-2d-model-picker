@@ -15,7 +15,7 @@
 
 ## 演示
 
-https://github.com/user-attachments/assets/ec5de655-3aba-44e6-a6ec-b0c3d208e132
+https://github.com/user-attachments/assets/1a8b4852-b17f-4e0d-8002-963011772cea
 
 ## 快速接入
 

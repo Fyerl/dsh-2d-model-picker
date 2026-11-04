@@ -44,7 +44,11 @@
           "2d",
           "picker",
           "selector",
+          "model-picker",
+          "model-selector",
+          "reasoning-effort",
           "模型",
+          "模型选择器",
           "二维选择器",
           "推理强度"
         ]

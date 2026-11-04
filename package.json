@@ -4,14 +4,13 @@
   "description": "A 2D model picker for DeepSeek Harness — select a model and reasoning effort in one drag.",
   "keywords": [
     "deepseek-harness",
+    "dsh-plugin",
     "dsh",
     "plugin",
-    "model",
-    "reasoning",
-    "effort",
-    "2d",
-    "picker",
-    "selector"
+    "model-picker",
+    "model-selector",
+    "reasoning-effort",
+    "2d-selector"
   ],
   "author": "Fyerl <ryan.fanyue@gmail.com>",
   "license": "MIT",

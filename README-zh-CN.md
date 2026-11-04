@@ -4,12 +4,13 @@
 
 # 二维模型选择器
 
-**一次拖动，同时选定模型与推理强度。**
+**DeepSeek Harness 插件：一次拖动，同时选定模型与推理强度。**
 
 [English](https://github.com/Fyerl/dsh-2d-model-picker/blob/main/README.md) · **简体中文**
 
 ![License](https://img.shields.io/badge/license-MIT-blue)
-![GitHub stars](https://img.shields.io/github/stars/Fyerl/dsh-2d-model-picker?style=social)
+[![npm](https://img.shields.io/npm/v/dsh-2d-model-picker)](https://www.npmjs.com/package/dsh-2d-model-picker)
+[![GitHub stars](https://img.shields.io/github/stars/Fyerl/dsh-2d-model-picker?style=social)](https://github.com/Fyerl/dsh-2d-model-picker/stargazers)
 
 </div>
 

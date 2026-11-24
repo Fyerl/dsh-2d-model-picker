@@ -56,7 +56,6 @@ jobs:
             tar -xOf "$RUNNER_TEMP/$archive" "$member" | cmp - "${member#package/}"
           done < "$RUNNER_TEMP/npm-files"
 
-          npm publish "$RUNNER_TEMP/$archive" --access public --dry-run
           echo "name=$archive" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@v7
         if: github.event_name == 'release'

@@ -20,6 +20,8 @@ window.__ModuleLoader__.load({
   factory(require) {
     const React = require('react')
     const ReactDOM = require('react-dom')
+    const { Button, Modal, Switch } = require('@deepseek-ai/dsh-client-ui-primitives')
+    const { createSnapshotStore } = require('@deepseek-ai/dsh-client-store')
     const h = React.createElement
 
     const PLUGIN_ID = 'dsh-2d-model-picker'
@@ -28,7 +30,7 @@ window.__ModuleLoader__.load({
     const SLOT_PRIORITY = -1
 
     /* ---------------- 几何（CSS 与坐标计算共用同一组常量） ---------------- */
-    const LABEL_W = 136 // 左侧模型名列宽（最小宽度；实际按最长模型名自适应）
+    const LABEL_W = 136 // 左侧模型和提供商列的最小宽度
     const LABEL_H = 30 // 顶部档位标题行高
     const CELL_W = 64 // 单列宽
     const CELL_H = 40 // 单行高
@@ -92,9 +94,17 @@ window.__ModuleLoader__.load({
     function flattenModels(catalog) {
       const out = []
       if (!catalog || !Array.isArray(catalog.groups)) return out
+      const names = new Map()
       for (const group of catalog.groups) {
         if (!group || !Array.isArray(group.models)) continue
-        for (const model of group.models) out.push({ provider: group.id, groupName: group.name || group.id, model })
+        const name = group.name || group.id
+        names.set(name, (names.get(name) || 0) + 1)
+      }
+      for (const group of catalog.groups) {
+        if (!group || !Array.isArray(group.models)) continue
+        const name = group.name || group.id
+        const groupName = names.get(name) > 1 ? name + ' (' + group.id + ')' : name
+        for (const model of group.models) out.push({ provider: group.id, groupName, model })
       }
       return out
     }
@@ -105,7 +115,7 @@ window.__ModuleLoader__.load({
     }
 
     /* ---------------- 数据钩子：读投影 + 拉目录 ---------------- */
-    function useModelSelection(ctx, sessionId) {
+    function useSessionProjection(ctx, sessionId, name) {
       const [projection, setProjection] = React.useState(null)
       React.useEffect(() => {
         if (!sessionId) return undefined
@@ -113,7 +123,7 @@ window.__ModuleLoader__.load({
         try {
           const binding = ctx.sessions && ctx.sessions.binding ? ctx.sessions.binding(sessionId) : null
           face = binding && binding.session && binding.session.projections
-            ? binding.session.projections.faceOf('modelSelection')
+            ? binding.session.projections.faceOf(name)
             : null
         } catch (error) { face = null }
         if (!face || typeof face.getSnapshot !== 'function') return undefined
@@ -121,7 +131,7 @@ window.__ModuleLoader__.load({
         sync()
         const dispose = typeof face.subscribe === 'function' ? face.subscribe(sync) : null
         return () => { if (typeof dispose === 'function') dispose() }
-      }, [ctx, sessionId])
+      }, [ctx, sessionId, name])
       return projection
     }
 
@@ -129,16 +139,28 @@ window.__ModuleLoader__.load({
       const [catalog, setCatalog] = React.useState(null)
       React.useEffect(() => {
         let alive = true
+        let latestRequest = 0
         const load = () => {
+          const request = ++latestRequest
           Promise.resolve()
             .then(() => ctx.remote.session.modelCatalog())
-            .then((result) => { if (!alive) return; if (result && result.ok) setCatalog(result.value) })
+            .then((result) => {
+              if (alive && request === latestRequest && result && result.ok) setCatalog(result.value)
+            })
             .catch(() => {})
         }
-        load()
         const disposers = []
-        try { if (ctx.remote && ctx.remote.$on) disposers.push(ctx.remote.$on('llm/adapters-updated', load)) } catch (error) {}
+        for (const event of [
+          'llm/adapters-updated',
+          'llm/models-updated',
+          'settings/document-updated',
+          'credentials/record-updated',
+          'credentials/reference-updated',
+        ]) {
+          try { if (ctx.remote && ctx.remote.$on) disposers.push(ctx.remote.$on(event, load)) } catch (error) {}
+        }
         try { if (ctx.on) disposers.push(ctx.on('connection/reset', load)) } catch (error) {}
+        load()
         return () => {
           alive = false
           for (const dispose of disposers) { try { if (typeof dispose === 'function') dispose() } catch (error) {} }
@@ -159,8 +181,8 @@ window.__ModuleLoader__.load({
 }
 .dsh2d-trigger:hover{background:var(--dsw-alias-bg-layer-1,transparent)}
 .dsh2d-trigger:disabled{opacity:.5;cursor:not-allowed}
-.dsh2d-trigger .dsh2d-model{overflow:hidden;text-overflow:ellipsis}
-.dsh2d-trigger .dsh2d-effort{color:var(--dsw-alias-label-secondary,#6b6b6b);font-size:12px}
+.dsh2d-trigger .dsh2d-model,.dsh2d-trigger .dsh2d-provider{overflow:hidden;text-overflow:ellipsis}
+.dsh2d-trigger .dsh2d-provider,.dsh2d-trigger .dsh2d-effort{color:var(--dsw-alias-label-secondary,#6b6b6b);font-size:12px}
 .dsh2d-trigger .dsh2d-chevron{flex:0 0 auto;color:var(--dsw-alias-label-secondary,#8a8a8a)}
 .dsh2d-pop{
   position:fixed;z-index:9999;display:flex;flex-direction:column;
@@ -174,6 +196,10 @@ window.__ModuleLoader__.load({
 .dsh2d-pad.dsh2d-hovering{cursor:grab}
 .dsh2d-pad.dsh2d-grabbing{cursor:grabbing}
 .dsh2d-pad:focus{outline:1px solid #4d6bfe;outline-offset:2px;border-radius:6px}
+.dsh2d-row-label{font-size:12px;line-height:16px;color:var(--dsw-alias-label-primary,#161616)}
+.dsh2d-row-label span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dsh2d-row-provider{font-size:10px;color:var(--dsw-alias-label-secondary,#6b6b6b)}
+.dsh2d-team{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:8px;padding:8px 4px 0;border-top:1px solid var(--dsw-alias-border-l2,transparent);font-size:12px}
 .dsh2d-puck{transition:transform .16s cubic-bezier(.2,.8,.25,1)}
 .dsh2d-puck.dsh2d-dragging{transition:none}
 .dsh2d-puck .dsh2d-glow{transition:opacity .14s ease}
@@ -235,12 +261,15 @@ window.__ModuleLoader__.load({
       const [hover, setHover] = React.useState(false)
       const [particleState, setParticleState] = React.useState('off') // off | in | out（粒子渐显/渐隐）
       const [pos, setPos] = React.useState(null)
+      const [teamBusy, setTeamBusy] = React.useState(false)
+      const [confirmTeamDisable, setConfirmTeamDisable] = React.useState(false)
 
       const anchorRef = React.useRef(null)
       const popRef = React.useRef(null)
       const padRef = React.useRef(null)
 
-      const projection = useModelSelection(ctx, sessionId)
+      const projection = useSessionProjection(ctx, sessionId, 'modelSelection')
+      const team = useSessionProjection(ctx, sessionId, 'agentTeam')
       const catalog = useModelCatalog(ctx)
       const rows = React.useMemo(() => {
         const list = flattenModels(catalog)
@@ -253,13 +282,13 @@ window.__ModuleLoader__.load({
         return scored.map((x) => x.e)
       }, [catalog])
 
-      // 左栏宽度按最长模型名自适应（模型名完整显示，不截断）
+      // 左栏宽度同时容纳模型名和提供商；过长的名称可以悬停查看。
       const nameWidth = (s) => {
         let w = 0
         for (const ch of String(s)) w += /[\u2e80-\u9fff\uf900-\ufaff\uff00-\uffef]/.test(ch) ? 12 : 6.6
         return w
       }
-      const maxNameW = rows.reduce((m, e) => Math.max(m, nameWidth(e.model.name || e.model.id)), 0)
+      const maxNameW = rows.reduce((m, e) => Math.max(m, nameWidth(e.model.name || e.model.id), nameWidth(e.groupName)), 0)
       const labelW = Math.min(300, Math.max(LABEL_W, Math.ceil(maxNameW) + 26))
       const cxOf = (col) => labelW + (col + 0.5) * CELL_W
 
@@ -321,6 +350,35 @@ window.__ModuleLoader__.load({
           ? ctx.sessions.subagentAddress(sessionId) !== undefined
           : false
       const disabled = !!locked || !!subagentLocked
+      const teamRemote = React.useSyncExternalStore(props.__teamRemote.subscribe, props.__teamRemote.getSnapshot)
+      const teamAvailable = team && !subagentLocked && teamRemote && Button && Modal && Switch
+      const chinese = document.documentElement.lang.startsWith('zh')
+      const teamLabel = chinese ? '启用智能体团队协作' : 'Enable agent teamwork'
+      const changeTeamMode = async (enabled) => {
+        if (disabled || teamBusy) return
+        setTeamBusy(true)
+        setError('')
+        try {
+          const result = await teamRemote.select(sessionId, enabled)
+          if (!result.ok) throw new Error(result.error.message)
+          setConfirmTeamDisable(false)
+        } catch (cause) {
+          setError(cause?.message || String(cause))
+        } finally {
+          setTeamBusy(false)
+        }
+      }
+      const toggleTeamMode = (enabled) => {
+        if (!enabled && projection?.lastUsed) {
+          setError('')
+          setPreview(null)
+          setOpen(false)
+          anchorRef.current?.focus()
+          setConfirmTeamDisable(true)
+        } else {
+          void changeTeamMode(enabled)
+        }
+      }
 
       /* ---------- 写入 ---------- */
       const commit = React.useCallback(
@@ -395,11 +453,14 @@ window.__ModuleLoader__.load({
         }
         window.addEventListener('resize', onChange)
         window.addEventListener('scroll', onChange, true)
+        const observer = typeof ResizeObserver === 'function' ? new ResizeObserver(place) : null
+        if (observer && popRef.current) observer.observe(popRef.current)
         return () => {
+          if (observer) observer.disconnect()
           window.removeEventListener('resize', onChange)
           window.removeEventListener('scroll', onChange, true)
         }
-      }, [open, rows.length, cols.length])
+      }, [open, labelW, rows.length, cols.length])
 
       /* ---------- 关闭行为 ---------- */
       React.useEffect(() => {
@@ -549,7 +610,9 @@ window.__ModuleLoader__.load({
 
       // 触发按钮文案
       const modelLabel = entry ? (entry.model.name || entry.model.id) : (current ? current.model : '选择模型')
+      const providerLabel = entry?.groupName
       const effortLabel = effs.length ? tierLabel(effs[Math.max(0, effs.findIndex((e) => lower(e.id) === lower(activeEffortId)))]).short : ''
+      const selectionLabel = [modelLabel, providerLabel, effortLabel].filter(Boolean).join(' · ')
 
       const buildSvgChildren = () => {
         const children = []
@@ -593,12 +656,15 @@ window.__ModuleLoader__.load({
         }
         // 行标题（模型名，左对齐；强的模型已排在上面）
         for (let r = 0; r < rowCount; r++) {
-          const name = rows[r].model.name || rows[r].model.id
+          const { model, groupName } = rows[r]
+          const name = model.name || model.id
           children.push(
-            h('text', {
-              key: 'rh' + r, x: 12, y: cyOf(r) + 4, textAnchor: 'start',
-              fontSize: 12, fill: 'var(--dsw-alias-label-primary,#161616)',
-            }, name),
+            h('foreignObject', { key: 'rh' + r, x: 12, y: cyOf(r) - 16, width: labelW - 24, height: 32 },
+              h('div', { className: 'dsh2d-row-label', title: name + ' · ' + groupName },
+                h('span', null, name),
+                h('span', { className: 'dsh2d-row-provider' }, groupName),
+              ),
+            ),
           )
         }
         // 有效交叉点圆点
@@ -671,10 +737,12 @@ window.__ModuleLoader__.load({
           type: 'button',
           disabled: disabled,
           onClick: () => { if (!disabled) { setOpen((o) => !o); setPreview(null); setError('') } },
-          'aria-label': '选择模型与推理强度',
+          title: selectionLabel,
+          'aria-label': '选择模型与推理强度：' + selectionLabel,
           'aria-expanded': open,
         },
         h('span', { className: 'dsh2d-model' }, modelLabel),
+        providerLabel ? h('span', { className: 'dsh2d-provider' }, '· ' + providerLabel) : null,
         effortLabel ? h('span', { className: 'dsh2d-effort' }, '· ' + effortLabel) : null,
         h(
           'svg',
@@ -755,18 +823,58 @@ window.__ModuleLoader__.load({
             note
               ? h('div', { className: 'dsh2d-note' }, note)
               : h('div', { className: 'dsh2d-scroll' }, svg),
+            teamAvailable ? h('div', { className: 'dsh2d-team' },
+              h('span', null, teamLabel),
+              h(Switch, {
+                label: teamLabel,
+                checked: team.enabled,
+                disabled: disabled || busy || teamBusy || !projection,
+                onChange: toggleTeamMode,
+              }),
+            ) : null,
             error ? h('div', { className: 'dsh2d-error' }, error) : null,
           ),
           document.body,
         )
       }
 
-      return h('span', { className: 'dsh2d-root' }, trigger, pop)
+      const closeTeamConfirmation = () => { if (!teamBusy) setConfirmTeamDisable(false) }
+      const confirmation = confirmTeamDisable && teamAvailable ? h(Modal, {
+        open: true,
+        tone: 'warning',
+        title: chinese ? '关闭智能体团队协作？' : 'Disable agent teamwork?',
+        closeLabel: chinese ? '关闭' : 'Close',
+        onClose: closeTeamConfirmation,
+        footer: h(React.Fragment, null,
+          h(Button, { variant: 'outline', disabled: teamBusy, 'data-modal-autofocus': true, onClick: closeTeamConfirmation },
+            chinese ? '取消' : 'Cancel'),
+          h(Button, { variant: 'primary', disabled: disabled || teamBusy, onClick: () => changeTeamMode(false) },
+            chinese ? '关闭团队协作' : 'Disable'),
+        ),
+      },
+      h('p', null, chinese
+        ? '关闭后，当前会话将停止使用共享任务工具和团队协作指令，可能影响后续的缓存复用和协作。'
+        : 'This stops shared task tools and team instructions in this session and may affect cache reuse and collaboration.'),
+      error ? h('p', { className: 'dsh2d-error', role: 'alert' }, error) : null,
+      ) : null
+
+      return h('span', { className: 'dsh2d-root' }, trigger, pop, confirmation)
     }
 
     /* ---------------- 挂载 ---------------- */
     function apply(ctx) {
-      const Bound = (props) => h(GridSelector, Object.assign({}, props, { __ctx: ctx }))
+      const teamRemote = createSnapshotStore(null)
+      ctx.inject(['remote', 'remote.agentTeams'], (scope) => {
+        scope.effect(() => {
+          teamRemote.set({ select: (sessionId, enabled) => scope.remote.agentTeams.setEnabled(sessionId, enabled) })
+          return () => teamRemote.set(null)
+        })
+      })
+      const Bound = (props) => h(GridSelector, Object.assign({}, props, {
+        __ctx: ctx,
+        __teamRemote: teamRemote,
+        key: props.sessionId,
+      }))
       Bound.displayName = 'ModelPicker2D'
       try {
         ctx.slots.inject(SLOT, () => ctx.slots.register({ name: SLOT, priority: SLOT_PRIORITY }, Bound))

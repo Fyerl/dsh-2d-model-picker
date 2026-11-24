@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0] - 2026-11-24
+- Show the provider for each model in the grid and for the current selection in the composer.
+- Refresh the model picker after model and provider settings change, without reloading the page.
+- Control DSH's session Team mode from the 2D picker on hosts that support it.
+
 ## [1.0.1] - 2026-11-04
 - Fix DSH plugin metadata loading by reducing the bundled PNG icon below the host's 256 KiB limit.
 - Add an icon-size check to prevent oversized assets from shipping again.

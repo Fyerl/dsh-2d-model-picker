@@ -58,7 +58,9 @@
           "version": "1.1.1",
           "publishTimestamp": 1795866604,
           "source": {
-            "type": "npm"
+            "type": "git",
+            "url": "https://github.com/Fyerl/dsh-2d-model-picker",
+            "commit": "615497465614bd19d4b3bdfcea943c3cde7c03e4"
           }
         },
         {

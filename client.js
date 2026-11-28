@@ -30,6 +30,7 @@ window.__ModuleLoader__.load({
     const SLOT_PRIORITY = -1
 
     /* ---------------- 几何（CSS 与坐标计算共用同一组常量） ---------------- */
+    const LABEL_INSET = 12 // 模型行与底部团队协作文案共用的左边距
     const LABEL_W = 136 // 左侧模型和提供商列的最小宽度
     const LABEL_H = 30 // 顶部档位标题行高
     const CELL_W = 64 // 单列宽
@@ -37,6 +38,9 @@ window.__ModuleLoader__.load({
     const CARD_MAX_W = 640 // 卡片最大宽（超出则横向滚动）
     const CARD_MAX_H = 420 // 网格区最大高（超出则纵向滚动）
     const PUCK_R = 8 // 滑点半径
+    const MAX_PUCK_GLOW_R = PUCK_R + 10
+    const MAX_HALO_R = 24
+    const MAX_HALO_STROKE = 2
 
     /** 无档位模型的占位列 id（提交时映射为「不写 reasoningEffort」）。 */
     const DEFAULT_EFFORT_ID = '__default__'
@@ -199,13 +203,21 @@ window.__ModuleLoader__.load({
 .dsh2d-row-label{font-size:12px;line-height:16px;color:var(--dsw-alias-label-primary,#161616)}
 .dsh2d-row-label span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .dsh2d-row-provider{font-size:10px;color:var(--dsw-alias-label-secondary,#6b6b6b)}
-.dsh2d-team{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:8px;padding:8px 4px 0;border-top:1px solid var(--dsw-alias-border-l2,transparent);font-size:12px}
+.dsh2d-team{
+  position:relative;z-index:1;display:grid;align-items:center;
+  grid-template-columns:minmax(0,calc(min(100%,var(--dsh2d-grid-width,100%)) - ${CELL_W}px)) ${CELL_W}px;
+  margin-top:8px;padding-top:8px;border-top:1px solid var(--dsw-alias-border-l2,transparent);font-size:12px;
+}
+.dsh2d-team > span{margin-left:${LABEL_INSET}px}
+.dsh2d-team-switch{justify-self:center}
+.dsh2d-team .dsh2d-team-switch[aria-checked="true"]{background:${DS_VIOLET}}
+.dsh2d-drag-layer{position:absolute;z-index:2;inset:0;width:100%;height:100%;pointer-events:none}
 .dsh2d-puck{transition:transform .16s cubic-bezier(.2,.8,.25,1)}
 .dsh2d-puck.dsh2d-dragging{transition:none}
 .dsh2d-puck .dsh2d-glow{transition:opacity .14s ease}
 .dsh2d-max-halo{animation:dsh2d-max-pulse 2.2s ease-out infinite}
 .dsh2d-max-halo.dsh2d-delay{animation-delay:1.1s}
-@keyframes dsh2d-max-pulse{0%{r:9px;opacity:.45}70%{r:24px;opacity:0}100%{r:24px;opacity:0}}
+@keyframes dsh2d-max-pulse{0%{r:9px;opacity:.45}70%{r:${MAX_HALO_R}px;opacity:0}100%{r:${MAX_HALO_R}px;opacity:0}}
 /* max 强化版：只改推理强度文字色（带过渡）；背景与边框保持原生 */
 .dsh2d-trigger .dsh2d-effort{transition:color .35s ease}
 .dsh2d-trigger.dsh2d-max .dsh2d-effort{color:#a855f7}
@@ -256,7 +268,7 @@ window.__ModuleLoader__.load({
       const [busy, setBusy] = React.useState(false)
       const [error, setError] = React.useState('')
       const [preview, setPreview] = React.useState(null) // {row,col} 拖动/键盘预览
-      const [dragPoint, setDragPoint] = React.useState(null) // {x,y} 拖拽时滑点的连续坐标
+      const [dragPoint, setDragPoint] = React.useState(null) // 网格与浮层内的滑点坐标
       const [dragging, setDragging] = React.useState(false)
       const [hover, setHover] = React.useState(false)
       const [particleState, setParticleState] = React.useState('off') // off | in | out（粒子渐显/渐隐）
@@ -281,6 +293,7 @@ window.__ModuleLoader__.load({
         scored.sort((a, b) => b.s - a.s || b.n - a.n || a.i - b.i)
         return scored.map((x) => x.e)
       }, [catalog])
+      const showProviders = new Set(rows.map((row) => row.provider)).size > 1
 
       // 左栏宽度同时容纳模型名和提供商；过长的名称可以悬停查看。
       const nameWidth = (s) => {
@@ -288,7 +301,9 @@ window.__ModuleLoader__.load({
         for (const ch of String(s)) w += /[\u2e80-\u9fff\uf900-\ufaff\uff00-\uffef]/.test(ch) ? 12 : 6.6
         return w
       }
-      const maxNameW = rows.reduce((m, e) => Math.max(m, nameWidth(e.model.name || e.model.id), nameWidth(e.groupName)), 0)
+      const maxNameW = rows.reduce((m, e) => Math.max(
+        m, nameWidth(e.model.name || e.model.id), showProviders ? nameWidth(e.groupName) : 0,
+      ), 0)
       const labelW = Math.min(300, Math.max(LABEL_W, Math.ceil(maxNameW) + 26))
       const cxOf = (col) => labelW + (col + 0.5) * CELL_W
 
@@ -493,11 +508,25 @@ window.__ModuleLoader__.load({
       /* ---------- 拖拽 ---------- */
       const pointFromClient = (clientX, clientY) => {
         const el = padRef.current
-        if (!el) return null
+        const scroll = el?.parentElement
+        const popup = popRef.current
+        if (!scroll || !popup) return null
         const rect = el.getBoundingClientRect()
-        const x = Math.max(labelW, Math.min(rect.width - 2, clientX - rect.left))
-        const y = Math.max(LABEL_H, Math.min(rect.height - 2, clientY - rect.top))
-        return { x, y }
+        const popupRect = popup.getBoundingClientRect()
+        const { scrollLeft, scrollTop, clientWidth, clientHeight } = scroll
+        // 有团队协作栏时，滑点中心可到网格底边，光晕可越过分隔线。
+        const minX = Math.max(labelW, scrollLeft + MAX_PUCK_GLOW_R)
+        const minY = Math.max(LABEL_H, scrollTop + MAX_PUCK_GLOW_R)
+        const maxX = Math.min(rect.width, scrollLeft + clientWidth) - MAX_PUCK_GLOW_R
+        const gridBottom = Math.min(rect.height, scrollTop + clientHeight)
+        const maxY = teamAvailable ? scrollTop + scroll.offsetHeight : gridBottom - MAX_PUCK_GLOW_R
+        const x = Math.max(minX, Math.min(maxX, clientX - rect.left))
+        const y = Math.max(minY, Math.min(maxY, clientY - rect.top))
+        return {
+          x, y,
+          layerX: x + rect.left - popupRect.left - popup.clientLeft,
+          layerY: y + rect.top - popupRect.top - popup.clientTop,
+        }
       }
       const startDrag = (event) => {
         if (disabled || busy) return
@@ -562,7 +591,8 @@ window.__ModuleLoader__.load({
       const gridW = colCount * CELL_W
       const gridH = rowCount * CELL_H
       const svgW = labelW + gridW
-      const svgH = LABEL_H + gridH
+      const haloPadding = Math.max(0, MAX_HALO_R + MAX_HALO_STROKE / 2 - CELL_H / 2)
+      const svgH = LABEL_H + gridH + haloPadding
 
       // 当前显示点：拖动预览 > 键盘预览 > 真实投影
       const firstValidCol = (r) => {
@@ -610,9 +640,31 @@ window.__ModuleLoader__.load({
 
       // 触发按钮文案
       const modelLabel = entry ? (entry.model.name || entry.model.id) : (current ? current.model : '选择模型')
-      const providerLabel = entry?.groupName
+      const providerLabel = showProviders ? entry?.groupName : ''
       const effortLabel = effs.length ? tierLabel(effs[Math.max(0, effs.findIndex((e) => lower(e.id) === lower(activeEffortId)))]).short : ''
       const selectionLabel = [modelLabel, providerLabel, effortLabel].filter(Boolean).join(' · ')
+
+      const drawPuck = (x, y, hidden = false) => {
+        const scale = dragging ? 0.94 : hover ? 1.08 : 1
+        const glowR = showIsMax ? MAX_PUCK_GLOW_R : PUCK_R + 7
+        const glowOp = dragging ? 0.3 : hover ? 0.24 : (showIsMax ? 0.22 : 0.16)
+        const fill = showIsMax ? 'url(#' + MAX_GRAD_ID + ')' : (dragging ? DS_BLUE_DEEP : DS_BLUE)
+        const ringW = dragging ? 2.5 : 2
+        return h(
+          'g',
+          {
+            key: 'puck',
+            transform: 'translate(' + x + ',' + y + ') scale(' + scale + ')',
+            className: 'dsh2d-puck' + (dragging ? ' dsh2d-dragging' : ''),
+            visibility: hidden ? 'hidden' : undefined,
+            style: { pointerEvents: 'none' },
+          },
+          h('circle', { key: 'glow', className: 'dsh2d-glow', cx: 0, cy: 0, r: glowR, fill: showIsMax ? DS_VIOLET : DS_BLUE, opacity: glowOp }),
+          h('circle', { key: 'body', cx: 0, cy: 0, r: PUCK_R, fill }),
+          h('circle', { key: 'ring', cx: 0, cy: 0, r: PUCK_R, fill: 'none', stroke: 'var(--dsw-alias-bg-overlay,#ffffff)', strokeWidth: ringW }),
+          h('circle', { key: 'core', cx: 0, cy: 0, r: 3, fill: '#ffffff' }),
+        )
+      }
 
       const buildSvgChildren = () => {
         const children = []
@@ -655,14 +707,18 @@ window.__ModuleLoader__.load({
           )
         }
         // 行标题（模型名，左对齐；强的模型已排在上面）
+        const rowLabelH = showProviders ? 32 : 16
         for (let r = 0; r < rowCount; r++) {
           const { model, groupName } = rows[r]
           const name = model.name || model.id
           children.push(
-            h('foreignObject', { key: 'rh' + r, x: 12, y: cyOf(r) - 16, width: labelW - 24, height: 32 },
-              h('div', { className: 'dsh2d-row-label', title: name + ' · ' + groupName },
+            h('foreignObject', {
+              key: 'rh' + r, x: LABEL_INSET, y: cyOf(r) - rowLabelH / 2,
+              width: labelW - LABEL_INSET * 2, height: rowLabelH,
+            },
+              h('div', { className: 'dsh2d-row-label', title: showProviders ? name + ' · ' + groupName : name },
                 h('span', null, name),
-                h('span', { className: 'dsh2d-row-provider' }, groupName),
+                showProviders ? h('span', { className: 'dsh2d-row-provider' }, groupName) : null,
               ),
             ),
           )
@@ -678,8 +734,8 @@ window.__ModuleLoader__.load({
             // 强化版只作用于「滑点所在的 max 圆点」：更大 + 双层脉冲光环
             if (isHighlight && isMax) {
               children.push(
-                h('circle', { key: 'mh0-' + r + '-' + c, className: 'dsh2d-max-halo', cx, cy, r: 9, opacity: 0, fill: 'none', stroke: DS_VIOLET, strokeWidth: 2 }),
-                h('circle', { key: 'mh1-' + r + '-' + c, className: 'dsh2d-max-halo dsh2d-delay', cx, cy, r: 9, opacity: 0, fill: 'none', stroke: DS_VIOLET, strokeWidth: 2 }),
+                h('circle', { key: 'mh0-' + r + '-' + c, className: 'dsh2d-max-halo', cx, cy, r: 9, opacity: 0, fill: 'none', stroke: DS_VIOLET, strokeWidth: MAX_HALO_STROKE }),
+                h('circle', { key: 'mh1-' + r + '-' + c, className: 'dsh2d-max-halo dsh2d-delay', cx, cy, r: 9, opacity: 0, fill: 'none', stroke: DS_VIOLET, strokeWidth: MAX_HALO_STROKE }),
               )
             }
             const fill = isHighlight ? (isMax ? DS_VIOLET : DS_BLUE) : (isMax ? DS_VIOLET : dotIdle)
@@ -702,30 +758,8 @@ window.__ModuleLoader__.load({
             }),
           )
         }
-        // 滑点（拖拽中跟手；hover / 抓取时有微小缩放；max 档渐变 + 光晕）
-        if (showCell) {
-          const isMax = showIsMax
-          const scale = dragging ? 0.94 : hover ? 1.08 : 1
-          const glowR = isMax ? PUCK_R + 10 : PUCK_R + 7
-          const glowOp = dragging ? 0.3 : hover ? 0.24 : (isMax ? 0.22 : 0.16)
-          const fill = isMax ? 'url(#' + MAX_GRAD_ID + ')' : (dragging ? DS_BLUE_DEEP : DS_BLUE)
-          const ringW = dragging ? 2.5 : 2
-          children.push(
-            h(
-              'g',
-              {
-                key: 'puck',
-                transform: 'translate(' + puckX + ',' + puckY + ') scale(' + scale + ')',
-                className: 'dsh2d-puck' + (dragging ? ' dsh2d-dragging' : ''),
-                style: { pointerEvents: 'none' },
-              },
-              h('circle', { key: 'glow', className: 'dsh2d-glow', cx: 0, cy: 0, r: glowR, fill: isMax ? DS_VIOLET : DS_BLUE, opacity: glowOp }),
-              h('circle', { key: 'body', cx: 0, cy: 0, r: PUCK_R, fill }),
-              h('circle', { key: 'ring', cx: 0, cy: 0, r: PUCK_R, fill: 'none', stroke: 'var(--dsw-alias-bg-overlay,#ffffff)', strokeWidth: ringW }),
-              h('circle', { key: 'core', cx: 0, cy: 0, r: 3, fill: '#ffffff' }),
-            ),
-          )
-        }
+        // 保留网格内滑点的位置，让它在松手后继续过渡到吸附点。
+        if (showCell) children.push(drawPuck(puckX, puckY, dragging))
         return children
       }
 
@@ -823,9 +857,13 @@ window.__ModuleLoader__.load({
             note
               ? h('div', { className: 'dsh2d-note' }, note)
               : h('div', { className: 'dsh2d-scroll' }, svg),
-            teamAvailable ? h('div', { className: 'dsh2d-team' },
+            teamAvailable ? h('div', {
+              className: 'dsh2d-team',
+              style: note ? undefined : { '--dsh2d-grid-width': Math.min(svgW, CARD_MAX_W) + 'px' },
+            },
               h('span', null, teamLabel),
               h(Switch, {
+                className: 'dsh2d-team-switch',
                 label: teamLabel,
                 checked: team.enabled,
                 disabled: disabled || busy || teamBusy || !projection,
@@ -833,6 +871,9 @@ window.__ModuleLoader__.load({
               }),
             ) : null,
             error ? h('div', { className: 'dsh2d-error' }, error) : null,
+            dragging && dragPoint && showCell
+              ? h('svg', { className: 'dsh2d-drag-layer', 'aria-hidden': true }, drawPuck(dragPoint.layerX, dragPoint.layerY))
+              : null,
           ),
           document.body,
         )

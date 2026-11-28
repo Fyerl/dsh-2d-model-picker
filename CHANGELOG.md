@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.1] - 2026-11-28
+- Show provider labels only when selectable models come from multiple providers.
+- Align the team mode label with the model names and the switch with the final effort column. Use the picker's violet accent when team mode is enabled.
+- Keep the drag handle and its glow visible at the grid edges, including over the team mode divider.
+
 ## [1.1.0] - 2026-11-24
 - Show the provider for each model in the grid and for the current selection in the composer.
 - Refresh the model picker after model and provider settings change, without reloading the page.
